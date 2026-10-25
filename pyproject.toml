@@ -1,0 +1,23 @@
+[project]
+name = "analyzing-open-neuroscience-data"
+version = "2026.1"
+description = "Analyzing Open Neuroscience Data course, SZTE 2026/27"
+readme = "README.md"
+requires-python = ">=3.10"
+# Packages used by the course notebooks (all modules).
+dependencies = [
+    "numpy>=1.24",
+    "pandas>=2.0",
+    "scipy>=1.10",
+    "matplotlib>=3.7",
+    "pyarrow>=14",
+    "anndata>=0.10",
+    "ipykernel>=6",  # lets VS Code / Jupyter run notebooks in this environment
+    # used by Modul 2/00_Build_Course_Data.ipynb to download and read the raw data
+    "openpyxl>=3.1",
+    "rdata>=0.11",
+    "requests>=2.28",
+]
+
+[tool.uv]
+package = false  # a course repo, not an installable package

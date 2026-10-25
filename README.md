@@ -11,3 +11,11 @@ This course is a patch-work of already existing sources mixed with our own ideas
 - 8: szünet
 - 9-11: Anatómia, Elektrofiziológia, Transzkriptomika
 - 12-13: Projektmunka, prezentáció
+
+### Telepítés / Setup
+- **Google Colab:** nincs teendő, a legtöbb csomag előre telepítve van; ahol kell, a notebook elején van egy `!pip install` cella.
+- **Lokálisan** ([uv](https://docs.astral.sh/uv/)-val), a repó gyökerében:
+  ```bash
+  uv sync
+  ```
+  Ez létrehozza a `.venv` környezetet; VS Code-ban ezt válaszd kernelnek.
