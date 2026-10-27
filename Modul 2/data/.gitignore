@@ -1,0 +1,6 @@
+# Everything here is built by ../00_Build_Course_Data.ipynb on each student's machine.
+# Only the hand-exported specimen table and the docs are committed.
+*
+!.gitignore
+!README.md
+!SpecimenMetadata.csv
