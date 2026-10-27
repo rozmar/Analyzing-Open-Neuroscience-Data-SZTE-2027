@@ -10,9 +10,14 @@ dependencies = [
     "pandas>=2.0",
     "scipy>=1.10",
     "matplotlib>=3.7",
+    "pillow>=10",
+    "statsmodels>=0.14",
+    "brainglobe-atlasapi>=2.0",
+    "plotly>=7.1.0",
+    "nbformat>=4.2.0",  # plotly needs it to show figures in notebooks
     "pyarrow>=14",
     "anndata>=0.10",
-    "ipykernel>=6",  # lets VS Code / Jupyter run notebooks in this environment
+    "ipykernel>=6", # lets VS Code / Jupyter run notebooks in this environment
     # used by Modul 2/00_Build_Course_Data.ipynb to download and read the raw data
     "openpyxl>=3.1",
     "rdata>=0.11",
