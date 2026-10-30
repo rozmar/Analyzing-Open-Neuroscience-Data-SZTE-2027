@@ -104,11 +104,11 @@ teaching with attribution; see the [Allen Institute terms of use](https://alleni
 | **CCF** | the Allen Mouse Brain Common Coordinate Framework: a standard 3D map of the mouse brain in µm, used to place cells from different brains together |
 | **MouseLight** | a Janelia project that reconstructs complete projection neurons across the whole mouse brain, placed in the CCF |
 
-<img src="images/glossary/morphology_fig2_layer_assignment.jpg" alt="Layer assignment of a recorded cell" width="600">
+<img src="images/morphology_fig2_layer_assignment.jpg" alt="Layer assignment of a recorded cell" width="600">
 
 *How a cell gets its area and layer (`area`, `layer`, `structure` in `cells.csv`): the biocytin-filled cell is found in the slice (1), its layer is read from the DAPI-stained cytoarchitecture (2), the slice is matched to the same plane of the CCF atlas (3), and the cell gets the CCF structure at that point, here VISp layer 2/3 (4). Figure 2 of the Cell Morphology and Histology white paper (Allen Institute, 2018).*
 
-<img src="images/glossary/morphology_fig3_reconstruction.jpg" alt="Making a reconstruction" width="700">
+<img src="images/morphology_fig3_reconstruction.jpg" alt="Making a reconstruction" width="700">
 
 *How an SWC file is made: an automatic trace of the 3D image stack (blue) is corrected by hand in Vaa3D, the axon is added (red), loose pieces are connected, the radii are corrected and cut ends are marked; the global features are computed from the finished reconstruction. Figure 3 of the Cell Morphology and Histology white paper (Allen Institute, 2018).*
 
@@ -170,11 +170,11 @@ Protocol names in the NWB files: cells recorded before 2018 use codes like `C1LS
 `C1SSFINEST...` (short square) and `C1RP...` (ramp); later cells use `X1PS_SubThresh`, `X3LP_Rheo`,
 `X4PS_SupraThresh` (long squares), `X6SP_Rheo` (short square) and `X7Ramp`. `EXTP...` sweeps are quality checks.
 
-<img src="images/glossary/ephys_fig2_test_sweeps.png" alt="Test sweeps" width="500">
+<img src="images/ephys_fig2_test_sweeps.png" alt="Test sweeps" width="500">
 
 *The order of an experiment. The numbered `EXTP...` test sweeps (voltage clamp, blue) check the electrode and the seal before and after the current-clamp recordings (pink) that the features come from. Figure 2 of the Electrophysiology white paper (Allen Institute, 2017).*
 
-<img src="images/glossary/ephys_fig3_stimuli.png" alt="The electrophysiology stimuli" width="600">
+<img src="images/ephys_fig3_stimuli.png" alt="The electrophysiology stimuli" width="600">
 
 *The stimuli. Not every cell got every one; the course uses the long squares, short squares and ramps. Figure 3 of the Electrophysiology white paper (Allen Institute, 2017).*
 
@@ -189,7 +189,7 @@ Protocol names in the NWB files: cells recorded before 2018 use codes like `C1LS
 | `sag_nearest_minus_100` | The same sag ratio, on the sweep closest to −100 pA | ratio | *I*<sub>h</sub> |
 | `sag_measured_at_mv` | The voltage at the largest deflection of that sweep (how hyperpolarized the cell was when sag was measured) | mV | voltage dependence of *I*<sub>h</sub> |
 
-<img src="images/glossary/ephys_fig6_cell_features.png" alt="Input resistance, time constant, sag and f-I curve" width="600">
+<img src="images/ephys_fig6_cell_features.png" alt="Input resistance, time constant, sag and f-I curve" width="600">
 
 *Features from several sweeps. A: the lowest voltage of each hyperpolarizing step (red dots) against the current; the slope of the line is the input resistance (left). Exponential fits (blue) give the time constant of each step, averaged into `tau` (right). B: sag = return to steady state ÷ peak deflection. C: the f–I curve; the slope of the line above rheobase is `f_i_curve_slope`. Figure 6 of the Electrophysiology white paper (Allen Institute, 2017).*
 
@@ -210,7 +210,7 @@ Protocol names in the NWB files: cells recorded before 2018 use codes like `C1LS
 These describe the **first spike** (`ap1_` = first action potential): for `long_square`, the first spike of the
 rheobase sweep; for `short_square` and `ramp`, the first spikes of several sweeps, averaged.
 
-<img src="images/glossary/ephys_fig4_action_potential.png" alt="Features of a single action potential" width="450">
+<img src="images/ephys_fig4_action_potential.png" alt="Features of a single action potential" width="450">
 
 *Features of a single action potential, evoked by a long square. Figure 4 of the Electrophysiology white paper (Allen Institute, 2017).*
 
@@ -233,7 +233,7 @@ rheobase sweep; for `short_square` and `ramp`, the first spikes of several sweep
 | `adaptation` | Adaptation index: how much the spikes slow down (positive) or speed up (negative) during the hero sweep; average of (ISI<sub>n+1</sub> − ISI<sub>n</sub>) / (ISI<sub>n+1</sub> + ISI<sub>n</sub>). 0 = perfectly regular | ratio | spike-frequency adaptation, Ca²⁺-activated K⁺ channels, M-current |
 | `avg_rate_rheobase_hz` | Firing rate on the rheobase sweep | Hz | |
 
-<img src="images/glossary/ephys_fig5_spike_train.png" alt="Spike train features" width="700">
+<img src="images/ephys_fig5_spike_train.png" alt="Spike train features" width="700">
 
 *Spike train features. A: latency (from the start of the step to the first spike) and the interspike intervals (ISIs), from which `avg_isi` and `adaptation` are computed. B: a cell that starts firing late (delay, typical of some Lamp5 / neurogliaform cells) and a cell that stops and restarts (pauses). Figure 5 of the Electrophysiology white paper (Allen Institute, 2017).*
 
@@ -299,7 +299,7 @@ Definitions: Electrophysiology white paper, Gouwens et al. (2019) supplementary 
 | **contamination** | Patch-seq samples can contain a little RNA from neighbouring cells (e.g. glia), one reason why they are noisier than dissociated cells (Lee et al. 2021) |
 | **orthologs** | the "same" gene in mouse and human (e.g. mouse *Kcnc1*, human *KCNC1*) |
 
-<img src="images/glossary/transcriptomics_fig1_workflow.png" alt="From tissue to reads" width="700">
+<img src="images/transcriptomics_fig1_workflow.png" alt="From tissue to reads" width="700">
 
 *How single-cell RNA-seq data are made for the reference taxonomy: brain slice → dissection → single cells sorted into tubes → SMART-Seq v4 amplification → library preparation → sequencing; green diamonds are quality checks. In Patch-seq the first steps differ: the cell's content is taken up by the patch pipette after the recording instead of being sorted, and from amplification on it is the same. Figure 1 of the Transcriptomics white paper (Allen Institute, 2018).*
 
