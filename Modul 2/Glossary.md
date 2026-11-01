@@ -2,7 +2,12 @@
 
 What the columns and concepts of the course data mean: the cells table, anatomy, electrophysiology and
 transcriptomics. All tables are made by `00_Build_Course_Data.ipynb` and saved in `data/`; every row is one cell, and
-every table joins to `cells.csv` on `cell_id`. The source of each column is listed in `data/DATA_DICTIONARY.md`.
+every table joins to `cells.csv` on `cell_id`.
+
+The short definitions here are for orientation. Above every table, **Sources** links to where the exact definitions
+are: the Allen Institute white papers, the papers, and the code that computed the numbers. The original name of
+every column (before the course renamed it) is listed in `data/DATA_DICTIONARY.md`, and the full renaming table is
+in the *Column names* cell of `00_Build_Course_Data.ipynb`.
 
 **Contents:** [Papers and white papers](#papers-and-white-papers) ·
 [How to read the column names](#how-to-read-the-column-names) · [The cells table](#the-cells-table) ·
@@ -44,22 +49,39 @@ teaching with attribution; see the [Allen Institute terms of use](https://alleni
 | Winnubst et al. (2019) *Cell* 179:268. [doi:10.1016/j.cell.2019.07.042](https://doi.org/10.1016/j.cell.2019.07.042) | MouseLight: complete, whole-brain reconstructions of projection neurons |
 | Wang et al. (2020) *Cell* 181:936. [doi:10.1016/j.cell.2020.04.007](https://doi.org/10.1016/j.cell.2020.04.007) | the Allen Mouse Brain Common Coordinate Framework (CCF v3) |
 
-**Software:** [IPFX](https://github.com/AllenInstitute/ipfx) (Allen ephys feature extraction) ·
-[pynwb](https://pynwb.readthedocs.io) (reading NWB files) · [DANDI](https://dandiarchive.org) (raw recordings) ·
+**Software that computed the features:** [IPFX](https://github.com/AllenInstitute/ipfx) (electrophysiology) ·
+[neuron_morphology](https://github.com/AllenInstitute/neuron_morphology) (morphology). **Software we use:**
+[pynwb](https://pynwb.readthedocs.io) (NWB files) · [DANDI](https://dandiarchive.org) (raw recordings) ·
 [AnnData](https://anndata.readthedocs.io) (expression files) · [BrainGlobe](https://brainglobe.info) (brain atlases)
 
 ## How to read the column names
 
-* **Mouse columns end with their unit:** `_mv` millivolt, `_pa` picoampere, `_mohm` megaohm, `_ms` millisecond,
-  `_s` second, `_hz` hertz, `_mv_per_ms` millivolt per millisecond, `_mm` millimeter, `_um` micrometer. No suffix: a
-  count, a ratio, or a unit given in the tables below.
-* **Human columns** use the original names of the human dataset, **without units in the name**: lengths in µm, areas in
-  µm², voltages in mV, currents in pA, resistance in MΩ, but **times in seconds**.
-* So, before comparing mouse and human, convert: human µm ÷ 1000 → mm, human s × 1000 → ms.
+The course gave all feature columns names that follow the same rules, in both species:
+
+* **The unit is at the end of the name:** `_mv` millivolt, `_pa` picoampere, `_mohm` megaohm, `_gohm` gigaohm,
+  `_ms` millisecond, `_s` second, `_hz` hertz, `_hz_per_pa` hertz per picoampere, `_mv_per_ms` millivolt per
+  millisecond, `_mv_s` millivolt × second, `_rad` radian, `_mm` millimeter, `_um` micrometer, `_um2` square
+  micrometer. **No unit** means a count, a ratio, a fraction between 0 and 1, an index or a principal component.
+* **The values keep the unit of their source**, so the two species differ: mouse lengths are in **mm**, human
+  lengths in **µm**; most mouse times are in **ms**, human times in **s**. The name tells you which: compare
+  `dendrite_total_length_mm` (mouse) with `dendrite_total_length_um` (human), and convert before comparing.
+* **`rheobase`** is the smallest long-square current that makes the cell fire (`rheobase_pa`), and `_rheobase` marks a
+  feature measured on that sweep, e.g. `latency_rheobase_s`.
+* **`_hero`** marks a feature measured on the white paper's *representative suprathreshold sweep*: the first long
+  square between 40 and 60 pA above rheobase ("hero sweep" is the name in the IPFX code). The mouse columns
+  `latency_s`, `avg_isi_ms` and `adaptation` are measured on this sweep too.
+* **`dendrite`**: all dendrites. (The Allen tables say "basal dendrite", as opposed to the apical dendrite of
+  pyramidal cells; these interneurons have no apical dendrite.)
+* **`frac`**: a fraction between 0 and 1. (The mouse Allen table says "Pct", but its values are fractions.)
 
 ## The cells table
 
 `cells.csv`: one row per neuron, both species.
+
+**Sources:** mouse: Allen [cell metadata](https://cdn.prod.website-files.com/689cfbd308fa7373b604d290/68d61b068b5cfcfd77c92050_20200711_patchseq_metadata_mouse.csv)
+and the [Brain Knowledge Platform specimen table](https://knowledge.brain-map.org/data/1HEYEW7GMUKWIQW37BO/specimens)
+(Gouwens et al. 2020) · human: [metadata of Lee, Dalley et al. 2023](https://github.com/AllenInstitute/human_patchseq_gaba/tree/5eb357a1cea246c7c847b5608a8fc7e87ea95b58/data)
+· how each column was made: section 6 and 7 of `00_Build_Course_Data.ipynb`, and `data/DATA_DICTIONARY.md`.
 
 | column | meaning |
 |---|---|
@@ -72,7 +94,7 @@ teaching with attribution; see the [Allen Institute terms of use](https://alleni
 | `layer` | cortical layer of the cell body (L1 at the surface, L6 at the bottom) |
 | `soma_depth_normalized` | (mouse) depth of the cell body: 0 at the pia (surface), 1 at the white matter |
 | `depth_from_pia_um`, `depth_source` | (human) depth of the cell body from the pia, in µm; from the reconstruction or the slice image |
-| `cell_depth_from_slice_surface` | (human) how deep below the surface of the *slice* the cell was patched, in µm (not the depth in the cortex) |
+| `cell_depth_from_slice_surface_um` | (human) how deep below the surface of the *slice* the cell was patched, in µm (not the depth in the cortex) |
 | `dendrite_type` | (mouse) spiny, aspiny or sparsely spiny (see [Anatomy](#anatomy)) |
 | `reconstruction_type` | (mouse) `full` (axon and dendrites) or `dendrite-only` |
 | `preparation`, `days_in_culture`, `virus` | (human) `acute`: recorded on the day of surgery; `culture`: the slice was kept alive for days first, often infected with a virus that labels a cell type |
@@ -92,12 +114,16 @@ teaching with attribution; see the [Allen Institute terms of use](https://alleni
 
 ### Concepts
 
+**Sources:** [Cell Morphology and Histology white paper](https://s3.amazonaws.com/webflow-prod-assets/689cfbd308fa7373b604d290/68ee796d43e1a8e8d93842f3_Documentation_Cell_Types_Database-Morphology_and_Histology_Overview.pdf)
+· the [SWC format](http://www.neuronland.org/NLMorphologyConverter/MorphologyFormats/SWC/Spec.html) ·
+[MouseLight](https://ml-neuronbrowser.janelia.org) (Winnubst et al. 2019) · CCF: Wang et al. (2020)
+
 | term | meaning |
 |---|---|
 | **biocytin fill** | during the recording, the dye biocytin diffuses from the pipette into the cell; after staining, the whole cell becomes visible |
 | **reconstruction** | a 3D tracing of the cell, made from microscope images (semi-automatically, then corrected by hand) |
 | **SWC file** | the text file of a reconstruction: one line per point, with `id`, `type`, `x`, `y`, `z`, `radius`, `parent` |
-| **node type** (`type`) | 1 = soma, 2 = axon, 3 = (basal) dendrite, 4 = apical dendrite. Interneurons have no apical dendrite |
+| **node type** (`type`) | 1 = soma, 2 = axon, 3 = dendrite |
 | **parent** | the point a point is connected to; `-1` marks the root (the soma) |
 | **transformed / upright / layer-aligned** | versions of a reconstruction rotated so that the y axis is perpendicular to the cortical surface (pia up); *layer-aligned* files are also stretched to a standard layer thickness |
 | **dendrite type** | spiny (excitatory cells), aspiny or sparsely spiny (interneurons), judged from the density of dendritic spines |
@@ -114,38 +140,51 @@ teaching with attribution; see the [Allen Institute terms of use](https://alleni
 
 ### Morphology features
 
-`data/mouse_morph_features.csv` (lengths in mm) and `data/human_morph_features.csv` (lengths in µm, same names
-without the `_mm`). In interneurons all dendrites are "basal dendrites". Each feature exists for the axon
-(`axon_...`) and the dendrites (`basal_dendrite_...`). x is the direction along the cortical surface, y the depth
-(perpendicular to the surface).
+`data/mouse_morph_features.csv` (lengths in mm, `_mm`) and `data/human_morph_features.csv` (lengths in µm, `_um`).
+Most features exist for the axon (`axon_...`) and for the dendrites (`dendrite_...`). x is the direction along the
+cortical surface, y the depth (perpendicular to the surface).
 
-| column (mouse) | what it measures | related concepts |
+**Sources:** definitions: [Morphology white paper, Table 6](https://s3.amazonaws.com/webflow-prod-assets/689cfbd308fa7373b604d290/68ee796d43e1a8e8d93842f3_Documentation_Cell_Types_Database-Morphology_and_Histology_Overview.pdf#page=13)
+and [Gouwens et al. 2019, supplementary information](http://static-content.springer.com/esm/art%3A10.1038%2Fs41593-019-0417-0/MediaObjects/41593_2019_417_MOESM1_ESM.pdf#page=73)
+· code: [neuron_morphology `features/`](https://github.com/AllenInstitute/neuron_morphology/tree/master/neuron_morphology/features),
+e.g. [`size.py`](https://github.com/AllenInstitute/neuron_morphology/blob/master/neuron_morphology/features/size.py) (lengths),
+[`dimension.py`](https://github.com/AllenInstitute/neuron_morphology/blob/master/neuron_morphology/features/dimension.py) (extent, bias),
+[`soma.py`](https://github.com/AllenInstitute/neuron_morphology/blob/master/neuron_morphology/features/soma.py) (stems, stem exit, soma percentile),
+[`layer/layer_histogram.py`](https://github.com/AllenInstitute/neuron_morphology/blob/master/neuron_morphology/features/layer/layer_histogram.py) (depth histograms, earth mover's distance)
+· data: mouse [specimen table](https://knowledge.brain-map.org/data/1HEYEW7GMUKWIQW37BO/specimens), human
+[`LeeDalley_morpho_features.csv`](https://github.com/AllenInstitute/human_patchseq_gaba/tree/5eb357a1cea246c7c847b5608a8fc7e87ea95b58/data)
+
+| column (mouse; human: `_um` instead of `_mm`) | what it measures | related concepts |
 |---|---|---|
 | `..._total_length_mm` | total length of all branches | size of the cell, input resistance (cable theory) |
 | `..._num_branches` | number of branches (pieces between two branch points or tips) | complexity |
 | `..._max_branch_order` | the most branch points on the way from the soma to any tip | how deeply the tree branches |
-| `basal_dendrite_num_stems` (human: `..._calculate_number_of_stems`) | number of dendrites leaving the soma | multipolar vs bipolar cells |
-| `basal_dendrite_stem_exit_up`, `_down`, `_side_less`, `_side_more` (human: `_side`) | fraction of the dendrite stems leaving the soma upwards, downwards or sideways | bipolar (Vip) vs multipolar shapes |
+| `dendrite_num_stems` | number of dendrites leaving the soma | multipolar vs bipolar cells |
+| `dendrite_stem_exit_up`, `_down`, `_side_less`, `_side_more` (human: `_side`) | fraction of the dendrite stems leaving the soma upwards, downwards or sideways | bipolar (Vip) vs multipolar shapes |
 | `..._extent_x_mm`, `..._extent_y_mm` | width and height of the arbor | horizontal vs vertical cells |
 | `..._max_euclidean_distance_mm` | straight-line distance from the soma to the farthest point | reach |
 | `..._max_path_distance_mm` | distance along the branches from the soma to the farthest point | signal travel distance |
 | `..._contraction` (human: `..._mean_contraction`) | straight-line length ÷ path length of the branches; 1 = perfectly straight | tortuosity |
 | `..._bias_x_mm`, `..._bias_y_mm` | how lopsided the arbor is around the soma, sideways (x) or up–down (y) | e.g. an axon climbing to layer 1 (Martinotti cells) |
 | `..._soma_percentile_x`, `..._soma_percentile_y` | where the soma lies within the arbor (0 to 1; 0.5 = in the middle) | |
-| `axon_soma_distance_mm` (human: `axon_exit_distance`), `axon_soma_theta` (human: `axon_exit_theta`) | where the axon leaves the cell: distance from the soma, and angle | |
-| `axon_pct_above_basal_dendrite`, `..._below_...`, `..._intersect_...` (human: `frac_` instead of `pct_`) | fraction of the axon above, below, or at the same depths as the dendrites (and the same for the dendrites vs the axon) | which layers the cell gets input from vs sends output to |
-| `axon_emd_with_basal_dendrite` | how different the depth profiles of the axon and the dendrites are (earth mover's distance) | input vs output layers |
+| `axon_soma_distance_mm` (human: `axon_exit_distance_um`) | how far from the soma the axon leaves the cell | |
+| `axon_soma_theta` (human: `axon_exit_theta`) | the direction in which the axon leaves the soma: the angle divided by π (0 to 1) | |
+| `axon_frac_above_dendrite`, `..._below_...`, `..._intersect_...` (and `dendrite_frac_..._axon`) | fraction of the axon above, below, or at the same depths as the dendrites (and the same for the dendrites vs the axon) | which layers the cell gets input from vs sends output to |
+| `axon_emd_with_dendrite` | how different the depth profiles of the axon and the dendrites are (earth mover's distance, in histogram bins) | input vs output layers |
 | `axon_hist_pc_0` … `_4` (human: `axon_depth_pc_0` … `_3`) | a compact summary of the axon's depth profile (principal components of the histogram of axon length per depth) | the layers the axon targets |
 
-Human only: `soma_surface` (µm²), `soma_aligned_dist_from_pia` (soma depth in the layer-aligned reconstruction, µm),
-`basal_dendrite_mean_diameter` (µm), `basal_dendrite_total_surface_area` (µm²), and ratios such as
-`axon_over_basal_dendrite_extent_x` (axon width ÷ dendrite width) and `axon_extent_x_over_y` (width ÷ height).
-
-Definitions: Morphology and Histology white paper (Table 6) and Gouwens et al. (2019), supplementary information.
+Human only: `soma_surface_um2`, `soma_aligned_dist_from_pia_um` (soma depth in the layer-aligned reconstruction),
+`dendrite_mean_diameter_um`, `dendrite_total_surface_area_um2`, ratios such as `axon_over_dendrite_extent_x` (axon
+width ÷ dendrite width) and `axon_extent_x_over_y` (width ÷ height), and `axon_branch_freq` (how often the axon
+branches; its unit is not documented in the source).
 
 ## Electrophysiology
 
 ### Concepts
+
+**Sources:** [Electrophysiology white paper](https://s3.amazonaws.com/webflow-prod-assets/689cfbd308fa7373b604d290/68ee796e6df1cc984c3ab432_Documentation_Cell_Types_Database-Electrophysiology_Overview.pdf)
+(stimuli: Figure 3; test sweeps: Figure 2 and Table 1) · [NWB format](https://nwb-overview.readthedocs.io) ·
+recordings on DANDI: [000020](https://dandiarchive.org/dandiset/000020) (mouse), [000636](https://dandiarchive.org/dandiset/000636) (human)
 
 | term | meaning |
 |---|---|
@@ -162,8 +201,8 @@ The stimuli, and how they appear in the column names:
 | `long_square` | long square | a 1 s step of constant current (the protocol of `02_Electrophysiology.ipynb`) |
 | `short_square` | short square | a 3 ms pulse of current, just strong enough to fire one spike |
 | `ramp` | ramp | a current that slowly increases until the cell fires |
-| `rheobase` / `rheo` | long square at rheobase | the smallest long square that made the cell fire |
-| `hero` | "hero" sweep | a long square somewhat above the rheobase, firing a regular train of spikes |
+| `rheobase` | long square at rheobase | the smallest long square that made the cell fire |
+| `hero` | representative sweep | the first long square between 40 and 60 pA above rheobase, usually firing a regular train of spikes |
 | `chirp` (human) | chirp | a small sine-wave current whose frequency rises over time |
 
 Protocol names in the NWB files: cells recorded before 2018 use codes like `C1LSCOARSE...` (long square),
@@ -178,106 +217,139 @@ Protocol names in the NWB files: cells recorded before 2018 use codes like `C1LS
 
 *The stimuli. Not every cell got every one; the course uses the long squares, short squares and ramps. Figure 3 of the Electrophysiology white paper (Allen Institute, 2017).*
 
+The mouse features are in `data/mouse_ephys_features.csv`: most come from the Allen
+[specimen table](https://knowledge.brain-map.org/data/1HEYEW7GMUKWIQW37BO/specimens); `input_resistance_mohm`,
+`sag_nearest_minus_100`, `sag_measured_at_mv`, `short_square_current_pa`, the `ap1_...` columns and the `..._rheobase_...`
+columns come from [Gala et al. 2021](https://github.com/AllenInstitute/coupledAE-patchseq). All of them were
+computed by [IPFX](https://github.com/AllenInstitute/ipfx). The human features (section 5) are in
+`data/human_ephys_features.csv`.
+
 ### 1. Passive properties (no spikes involved)
 
-| column (mouse) | what it measures | unit | related concepts |
-|---|---|---|---|
-| `vrest_mv` | Resting membrane potential: the voltage when no current is injected | mV | ion gradients, leak channels, Nernst / Goldman equation |
-| `input_resistance_mohm` | Input resistance: how much the voltage changes per injected current, from the hyperpolarizing long squares (slope of the largest voltage change against the current) | MΩ | Ohm's law, cell size, number of open channels |
-| `tau` | Membrane time constant: how fast the voltage approaches its new level after a small hyperpolarizing step (exponential fit) | ms | membrane capacitance, resistance × capacitance, temporal summation |
-| `sag` | How much the voltage creeps back during a hyperpolarizing step: (largest deflection − steady state) / (largest deflection − baseline). 0 = no sag | ratio | HCN channels, *I*<sub>h</sub> |
-| `sag_nearest_minus_100` | The same sag ratio, on the sweep closest to −100 pA | ratio | *I*<sub>h</sub> |
-| `sag_measured_at_mv` | The voltage at the largest deflection of that sweep (how hyperpolarized the cell was when sag was measured) | mV | voltage dependence of *I*<sub>h</sub> |
+**Sources:** [white paper, cell-level features, p. 12–13 and Figure 6](https://s3.amazonaws.com/webflow-prod-assets/689cfbd308fa7373b604d290/68ee796e6df1cc984c3ab432_Documentation_Cell_Types_Database-Electrophysiology_Overview.pdf#page=12)
+· code: IPFX [`subthresh_features.py`](https://github.com/AllenInstitute/ipfx/blob/master/ipfx/subthresh_features.py)
+(`input_resistance`, `sag`, `fit_membrane_time_constant`, `voltage_deflection`)
+
+| column (mouse) | what it measures | related concepts |
+|---|---|---|
+| `vrest_mv` | Resting membrane potential: the voltage when no current is injected | ion gradients, leak channels, Nernst / Goldman equation |
+| `input_resistance_mohm` | Input resistance: how much the voltage changes per injected current, from the hyperpolarizing long squares (slope of the largest voltage change against the current) | Ohm's law, cell size, number of open channels |
+| `tau_ms` | Membrane time constant: how fast the voltage approaches its new level after a small hyperpolarizing step (exponential fit) | membrane capacitance, resistance × capacitance, temporal summation |
+| `sag` | How much the voltage creeps back during a hyperpolarizing step: (largest deflection − steady state) / (largest deflection − baseline). 0 = no sag | HCN channels, *I*<sub>h</sub> |
+| `sag_nearest_minus_100` | The same sag ratio, on the sweep closest to −100 pA | *I*<sub>h</sub> |
+| `sag_measured_at_mv` | The voltage at the largest deflection of that sweep (how hyperpolarized the cell was when sag was measured) | voltage dependence of *I*<sub>h</sub> |
 
 <img src="images/ephys_fig6_cell_features.png" alt="Input resistance, time constant, sag and f-I curve" width="600">
 
-*Features from several sweeps. A: the lowest voltage of each hyperpolarizing step (red dots) against the current; the slope of the line is the input resistance (left). Exponential fits (blue) give the time constant of each step, averaged into `tau` (right). B: sag = return to steady state ÷ peak deflection. C: the f–I curve; the slope of the line above rheobase is `f_i_curve_slope`. Figure 6 of the Electrophysiology white paper (Allen Institute, 2017).*
+*Features from several sweeps. A: the lowest voltage of each hyperpolarizing step (red dots) against the current; the slope of the line is the input resistance (left). Exponential fits (blue) give the time constant of each step, averaged into `tau_ms` (right). B: sag = return to steady state ÷ peak deflection. C: the f–I curve; the slope of the line above rheobase is `f_i_curve_slope_hz_per_pa`. Figure 6 of the Electrophysiology white paper (Allen Institute, 2017).*
 
 ### 2. When does the cell fire?
 
-| column (mouse) | what it measures | unit | related concepts |
-|---|---|---|---|
-| `threshold_i_long_square_pa` | **Rheobase**: the smallest long-square current that made the cell fire | pA | excitability, input resistance |
-| `threshold_i_short_square_pa` | The smallest 3 ms pulse that made the cell fire | pA | excitability, membrane charging |
-| `short_square_current_pa` | The current of the short-square sweep used for the `ap1_..._short_square` features | pA | |
-| `threshold_i_ramp_pa` | The current at which the ramp evoked the first spike | pA | excitability |
-| `threshold_v_long_square_mv`, `..._short_square_mv`, `..._ramp_mv` | **Spike threshold**: the voltage where the first spike takes off (where the rate of rise passes a set fraction of its maximum) | mV | sodium channel activation |
-| `latency` | Time from the start of the step to the threshold of the first spike, on the hero sweep | s | integration, A-type potassium currents (delayed firing) |
-| `latency_rheobase_s` | The same, on the rheobase sweep (so it is usually longer) | s | |
+**Sources:** [white paper, feature definitions, p. 9–13](https://s3.amazonaws.com/webflow-prod-assets/689cfbd308fa7373b604d290/68ee796e6df1cc984c3ab432_Documentation_Cell_Types_Database-Electrophysiology_Overview.pdf#page=9)
+· code: IPFX [`stimulus_protocol_analysis.py`](https://github.com/AllenInstitute/ipfx/blob/master/ipfx/stimulus_protocol_analysis.py)
+(rheobase, `find_hero_sweep`), [`spike_features.py`](https://github.com/AllenInstitute/ipfx/blob/master/ipfx/spike_features.py)
+(threshold), [`spike_train_features.py`](https://github.com/AllenInstitute/ipfx/blob/master/ipfx/spike_train_features.py) (`latency`)
+
+| column (mouse) | what it measures | related concepts |
+|---|---|---|
+| `rheobase_pa` | **Rheobase**: the smallest long-square current that made the cell fire | excitability, input resistance |
+| `threshold_i_short_square_pa` | The smallest 3 ms pulse that made the cell fire | excitability, membrane charging |
+| `short_square_current_pa` | The current of the short-square sweep used for the `ap1_..._short_square` features | |
+| `threshold_i_ramp_pa` | The current at which the ramp evoked the first spike | excitability |
+| `threshold_v_long_square_mv`, `..._short_square_mv`, `..._ramp_mv` | **Spike threshold**: the voltage where the first spike takes off (where the rate of rise passes a set fraction of its maximum) | sodium channel activation |
+| `latency_s` | Time from the start of the step to the threshold of the first spike, on the representative (hero) sweep | integration, A-type potassium currents (delayed firing) |
+| `latency_rheobase_s` | The same, on the rheobase sweep (so it is usually longer) | |
 
 ### 3. Shape of the action potential
 
 These describe the **first spike** (`ap1_` = first action potential): for `long_square`, the first spike of the
 rheobase sweep; for `short_square` and `ramp`, the first spikes of several sweeps, averaged.
 
+**Sources:** [white paper, single action potential features, p. 9–10 and Figure 4](https://s3.amazonaws.com/webflow-prod-assets/689cfbd308fa7373b604d290/68ee796e6df1cc984c3ab432_Documentation_Cell_Types_Database-Electrophysiology_Overview.pdf#page=9)
+· code: IPFX [`spike_features.py`](https://github.com/AllenInstitute/ipfx/blob/master/ipfx/spike_features.py) (`find_widths`, upstroke, downstroke, troughs);
+the `ap1_` columns: IPFX [`run_feature_collection.py`](https://github.com/AllenInstitute/ipfx/blob/master/ipfx/bin/run_feature_collection.py)
+(where `ap_1_..._0_long_square` = first spike of the sweep at rheobase + 0 pA) and [Gala et al. 2021](https://github.com/AllenInstitute/coupledAE-patchseq)
+
 <img src="images/ephys_fig4_action_potential.png" alt="Features of a single action potential" width="450">
 
 *Features of a single action potential, evoked by a long square. Figure 4 of the Electrophysiology white paper (Allen Institute, 2017).*
 
-| column (mouse) | what it measures | unit | related concepts |
-|---|---|---|---|
-| `peak_v_..._mv`, `ap1_peak_v_..._mv` | Peak: the highest voltage of the spike | mV | sodium channels, driving force |
-| `fast_trough_v_..._mv`, `ap1_fast_trough_v_..._mv` | Fast trough: the lowest voltage within 5 ms after the peak | mV | fast afterhyperpolarization, Kv3 and BK channels |
-| `trough_v_..._mv` | Trough: the lowest voltage between this spike and the next one (or the end of the step) | mV | slower afterhyperpolarization |
-| `ap1_upstroke_..._mv_per_ms` | Upstroke: the fastest rate of rise of the spike | mV/ms | sodium channel density |
-| `ap1_downstroke_..._mv_per_ms` | Downstroke: the fastest rate of fall (negative) | mV/ms | potassium channels (repolarization) |
-| `upstroke_downstroke_ratio_...`, `ap1_upstroke_downstroke_ratio_...` | Upstroke / &#124;downstroke&#124;. Fast-spiking (Pvalb) cells repolarize very fast, so their ratio is low | ratio | Kv3 channels, fast-spiking cells |
-| `ap1_width_long_square_ms`, `ap1_width_short_square_ms` | Spike width at half height: the duration of the spike halfway between its peak and the trough after it | ms | how fast the spike repolarizes; narrow spikes in Pvalb cells |
+| column (mouse) | what it measures | related concepts |
+|---|---|---|
+| `peak_v_..._mv`, `ap1_peak_v_..._mv` | Peak: the highest voltage of the spike | sodium channels, driving force |
+| `fast_trough_v_..._mv`, `ap1_fast_trough_v_..._mv` | Fast trough: the lowest voltage within 5 ms after the peak | fast afterhyperpolarization, Kv3 and BK channels |
+| `trough_v_..._mv` | Trough: the lowest voltage between this spike and the next one (or the end of the step) | slower afterhyperpolarization |
+| `ap1_upstroke_..._mv_per_ms` | Upstroke: the fastest rate of rise of the spike | sodium channel density |
+| `ap1_downstroke_..._mv_per_ms` | Downstroke: the fastest rate of fall (negative) | potassium channels (repolarization) |
+| `upstroke_downstroke_ratio_...`, `ap1_upstroke_downstroke_ratio_...` | Upstroke / &#124;downstroke&#124;. Fast-spiking (Pvalb) cells repolarize very fast, so their ratio is low | Kv3 channels, fast-spiking cells |
+| `ap1_width_long_square_ms`, `ap1_width_short_square_ms` | Spike width at half height: the duration of the spike halfway between its peak and the trough after it | how fast the spike repolarizes; narrow spikes in Pvalb cells |
 
 ### 4. Spike trains
 
-| column (mouse) | what it measures | unit | related concepts |
-|---|---|---|---|
-| `f_i_curve_slope` | Slope of the f–I curve above rheobase: how much the firing rate grows per extra pA | Hz/pA | gain, input–output function |
-| `avg_isi` | Average interspike interval (time between spikes) on the hero sweep | ms | firing rate = 1000 / ISI |
-| `adaptation` | Adaptation index: how much the spikes slow down (positive) or speed up (negative) during the hero sweep; average of (ISI<sub>n+1</sub> − ISI<sub>n</sub>) / (ISI<sub>n+1</sub> + ISI<sub>n</sub>). 0 = perfectly regular | ratio | spike-frequency adaptation, Ca²⁺-activated K⁺ channels, M-current |
-| `avg_rate_rheobase_hz` | Firing rate on the rheobase sweep | Hz | |
+**Sources:** [white paper, spike train features, p. 11 and Figure 5](https://s3.amazonaws.com/webflow-prod-assets/689cfbd308fa7373b604d290/68ee796e6df1cc984c3ab432_Documentation_Cell_Types_Database-Electrophysiology_Overview.pdf#page=11)
+· code: IPFX [`spike_train_features.py`](https://github.com/AllenInstitute/ipfx/blob/master/ipfx/spike_train_features.py)
+(`adaptation_index`, `latency`, `average_rate`, `fit_fi_slope`)
+
+| column (mouse) | what it measures | related concepts |
+|---|---|---|
+| `f_i_curve_slope_hz_per_pa` | Slope of the f–I curve above rheobase: how much the firing rate grows per extra pA | gain, input–output function |
+| `avg_isi_ms` | Average interspike interval (time between spikes) on the representative (hero) sweep | firing rate = 1000 / ISI |
+| `adaptation` | Adaptation index: how much the spikes slow down (positive) or speed up (negative) during the representative (hero) sweep; average of (ISI<sub>n+1</sub> − ISI<sub>n</sub>) / (ISI<sub>n+1</sub> + ISI<sub>n</sub>). 0 = perfectly regular | spike-frequency adaptation, Ca²⁺-activated K⁺ channels, M-current |
+| `avg_rate_rheobase_hz` | Firing rate on the rheobase sweep | |
 
 <img src="images/ephys_fig5_spike_train.png" alt="Spike train features" width="700">
 
-*Spike train features. A: latency (from the start of the step to the first spike) and the interspike intervals (ISIs), from which `avg_isi` and `adaptation` are computed. B: a cell that starts firing late (delay, typical of some Lamp5 / neurogliaform cells) and a cell that stops and restarts (pauses). Figure 5 of the Electrophysiology white paper (Allen Institute, 2017).*
+*Spike train features. A: latency (from the start of the step to the first spike) and the interspike intervals (ISIs), from which `avg_isi_ms` and `adaptation` are computed. B: a cell that starts firing late (delay, typical of some Lamp5 / neurogliaform cells) and a cell that stops and restarts (pauses). Figure 5 of the Electrophysiology white paper (Allen Institute, 2017).*
 
 ### 5. Human features
 
-The human table uses the IPFX names directly. **The unit is not in the name**: voltages are in mV, currents in pA,
-resistance in MΩ, but **times are in seconds** (`tau`, `width_...`, `latency_...`, `..._isi_...`). Multiply by 1000
-to compare them with the mouse `_ms` columns.
+`data/human_ephys_features.csv` uses the IPFX feature names, with the course rules applied (unit at the end,
+`_rheo` → `_rheobase`, `rheobase_i` → `rheobase_pa`). Its times are in **seconds** (`tau_s`, `width_..._s`,
+`latency_..._s`, `..._isi_..._s`): multiply by 1000 to compare them with the mouse `_ms` columns.
+
+**Sources:** Lee, Dalley et al. (2023), Materials and Methods · data:
+[`LeeDalley_ephys_fx.csv`](https://github.com/AllenInstitute/human_patchseq_gaba/tree/5eb357a1cea246c7c847b5608a8fc7e87ea95b58/data)
+· code: [IPFX](https://github.com/AllenInstitute/ipfx) (as above; chirp: [`chirp.py`](https://github.com/AllenInstitute/ipfx/blob/master/ipfx/chirp.py)).
+Some of these features (e.g. `sag_area`, `postap_slope`, `ahp_delay_ratio`, the chirp summaries) are not in the
+public IPFX code; their units here (`_mv_s`, `_mv_per_ms`) are inferred from the values, and
+`total_inductive_phase_chirp` has no unit because it is not documented.
 
 | mouse column | human column | note |
 |---|---|---|
-| `vrest_mv` | `v_baseline` | |
-| `input_resistance_mohm` | `input_resistance` | both MΩ |
-| `tau` (ms) | `tau` (s) | human × 1000 |
-| `threshold_i_long_square_pa` | `rheobase_i` | |
-| `f_i_curve_slope` | `fi_fit_slope` | |
-| `sag` | `sag` | human: measured near −90 mV (`vm_for_sag`) |
-| `ap1_width_long_square_ms` | `width_rheo` (s) | human × 1000 |
-| `ap1_upstroke_downstroke_ratio_long_square` | `upstroke_downstroke_ratio_rheo` | |
-| `latency_rheobase_s` | `latency_rheo` | |
-| `avg_rate_rheobase_hz` | `avg_rate_rheo` | |
-| `adaptation` | `adapt_hero` | both on the hero sweep (`adapt_mean`: averaged over sweeps) |
+| `vrest_mv` | `v_baseline_mv` | |
+| `input_resistance_mohm` | `input_resistance_mohm` | |
+| `tau_ms` | `tau_s` | human × 1000 |
+| `rheobase_pa` | `rheobase_pa` | |
+| `f_i_curve_slope_hz_per_pa` | `fi_fit_slope_hz_per_pa` | |
+| `sag` | `sag` | human: measured near −90 mV (`vm_for_sag_mv`) |
+| `ap1_width_long_square_ms` | `width_rheobase_s` | human × 1000 |
+| `ap1_upstroke_downstroke_ratio_long_square` | `upstroke_downstroke_ratio_rheobase` | |
+| `latency_rheobase_s` | `latency_rheobase_s` | |
+| `avg_rate_rheobase_hz` | `avg_rate_rheobase_hz` | |
+| `adaptation` | `adapt_hero` | both on the representative (hero) sweep (`adapt_mean`: averaged over sweeps) |
 
 | part of the name (human) | meaning |
 |---|---|
-| `..._deltav_...` (`peak_deltav`, `trough_deltav`, `fast_trough_deltav`) | the voltage *relative to the spike threshold* (mV), instead of absolute |
-| `postap_slope_...` | slope of the voltage just after the spike |
-| `width_suprathresh_...` | spike width measured halfway between threshold and peak, instead of between trough and peak (s) |
-| `adp_v_last_rheo` | afterdepolarization: a small bump after the last spike on the rheobase sweep (mV) |
+| `..._deltav_..._mv` (`peak_deltav`, `trough_deltav`, `fast_trough_deltav`, `trough_slowdeltav`) | the voltage *relative to the spike threshold*, instead of absolute |
+| `postap_slope_..._mv_per_ms` | slope of the voltage just after the spike |
+| `width_suprathresh_..._s` | spike width measured halfway between threshold and peak, instead of between trough and peak |
+| `adp_v_last_rheobase_mv` | afterdepolarization: a small bump after the last spike on the rheobase sweep |
 | `ahp_delay_ratio_...` | how late the afterhyperpolarization trough comes, relative to the interspike interval |
-| `mean_isi_...`, `median_isi_...`, `first_isi_inv_...` | interspike intervals (s); `first_isi_inv` = 1 / first ISI (Hz) |
+| `mean_isi_..._s`, `median_isi_..._s`, `first_isi_inv_..._hz` | interspike intervals; `first_isi_inv` = 1 / first ISI |
 | `isi_cv_...`, `isi_norm_sq_var_...` | how irregular the spike train is (coefficient of variation of the ISIs, and a normalized variance) |
 | `..._adapt_ratio` (`isi_`, `width_`, `upstroke_`, `peak_v_`, ...) | the last spike of a train compared with the first: how the spikes change during firing |
 | `..._mean`, `..._max` | averaged / largest over several sweeps |
-| `sag_peak_t`, `sag_area`, `sag_tau` | when the largest deflection happens (s), the area of the sag, and its time constant (s) |
+| `sag_peak_t_s`, `sag_area_mv_s`, `sag_tau_s` | when the largest deflection happens, the area of the sag, and its time constant |
 | `..._depol` (`sag_depol`, ...) | the same sag measures on depolarizing steps |
-| `..._chirp` | response to the chirp: `peak_freq_chirp` (Hz) is the frequency the cell responds to best (**resonance**); `peak_impedance_chirp`, `low_freq_impedance_chirp` the impedance at that peak and at low frequency; `3db_freq_chirp` where the response falls to half power; `phase_...` and `total_inductive_phase_chirp` describe the timing of the response |
-
-Definitions: Electrophysiology white paper, Gouwens et al. (2019) supplementary information, and the
-[IPFX documentation](https://ipfx.readthedocs.io).
+| `..._chirp` | response to the chirp: `peak_freq_chirp_hz` is the frequency the cell responds to best (**resonance**); `peak_impedance_chirp_gohm`, `low_freq_impedance_chirp_gohm` the impedance at that peak and at low frequency; `3db_freq_chirp_hz` where the response falls to half power; `phase_..._rad` and `total_inductive_phase_chirp` describe the timing of the response |
 
 ## Transcriptomics
 
 ### Concepts
+
+**Sources:** [Transcriptomics white paper](https://s3.amazonaws.com/webflow-prod-assets/689cfbd308fa7373b604d290/68e7f045b6ee524918d5fbd2_CellTypes_Transcriptomics_Overview.pdf)
+(workflow, read counting, clustering) · Patch-seq: [Lee et al. 2021](https://elifesciences.org/articles/65482)
+· taxonomies: Tasic et al. (2018), Hodge et al. (2019) · MET-types: Gouwens et al. (2020)
 
 | term | meaning |
 |---|---|
@@ -305,6 +377,12 @@ Definitions: Electrophysiology white paper, Gouwens et al. (2019) supplementary 
 
 ### Expression files
 
+**Sources:** mouse counts: [NeMO archive](https://data.nemoarchive.org/other/AIBS/AIBS_patchseq/transcriptome/scell/SMARTseq/processed/analysis/20200611/)
+(and its [parquet copy](https://github.com/AllenInstitute/EducationAndEngagement/releases/tag/patchseq-data-v1))
+· human: [`complete_patchseq_data_sets1/2.RData`](https://github.com/AllenInstitute/human_patchseq_gaba/tree/5eb357a1cea246c7c847b5608a8fc7e87ea95b58/data)
+· ion channel gene list: [`vgic_genes.csv`](https://github.com/AllenInstitute/human_patchseq_gaba/tree/5eb357a1cea246c7c847b5608a8fc7e87ea95b58/data)
+· how the files are made: section 8 of `00_Build_Course_Data.ipynb`
+
 | file | content |
 |---|---|
 | `mouse_expression_selected.parquet`, `human_expression_selected.parquet` | log2(CPM + 1) of ~185 genes (all voltage-gated ion channels and some markers), cells × genes, index = `cell_id`; opens with `pd.read_parquet` |
@@ -315,6 +393,3 @@ Definitions: Electrophysiology white paper, Gouwens et al. (2019) supplementary 
 Inside an `.h5ad` file (an **AnnData** object): `X` is the cells × genes matrix, `obs` the table of cells
 (`obs_names` = `cell_id`; mouse also `library_size`), `var` the table of genes (`var_names` = gene symbols), and
 `uns["values"]` says whether `X` holds `counts` or `log2cpm`. Mouse CPM = `X / obs["library_size"] × 1e6`.
-
-Methods: Transcriptomics white paper, Tasic et al. (2018), and for the Patch-seq specifics Lee et al. (2021) and
-Gouwens et al. (2020).
