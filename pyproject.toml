@@ -23,6 +23,7 @@ dependencies = [
     "rdata>=0.11",
     "requests>=2.28",
     "pynwb>=4.2.0",
+    "scikit-learn>=1.7.2",
 ]
 
 [tool.uv]
